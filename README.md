@@ -105,6 +105,10 @@ npm start
 npm run start:prod
 ```
 
+控制台截图：
+
+![Calendar Sync 控制台](ui/image.png)
+
 访问入口：
 
 1. `GET /health`：健康检查。
