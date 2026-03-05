@@ -160,3 +160,4 @@ node ../skills/icloud-calendar-ops/scripts/runtime-report.js --service-repo /pat
 1. 背景与设计文档：`docs/背景与设计文档.md`
 2. 软件介绍：`docs/软件介绍.md`
 3. 安装部署文档：`docs/安装部署文档.md`
+4. 各日历 API 获取方式：`docs/calendar-api-access/`
