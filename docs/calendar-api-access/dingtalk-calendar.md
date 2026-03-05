@@ -6,6 +6,8 @@
 
 1. 钉钉开发者文档入口：https://developers.dingtalk.com/document
 2. CalDAV 标准协议（RFC 4791）：https://www.rfc-editor.org/rfc/rfc4791
+3. 钉钉文档分享页（你提供的参考链接，可能需要登录后查看正文）：
+   - https://alidocs.dingtalk.com/i/p/Y7kmbokZp3pgGLq2/docs/jkB7yl4ZK3vV6qvBNMZgWPMX2O6oxqw0
 
 ## 2. 当前接入结论（基于公开资料检索 + 现有工程实践）
 
