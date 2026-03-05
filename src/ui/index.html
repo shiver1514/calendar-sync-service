@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendar Sync 控制台</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="page-bg"></div>
+  <main class="layout">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Calendar Sync</p>
+        <h1>日历同步控制台</h1>
+        <p class="subtitle">查看服务状态、同步结果、运行日志与当前配置。</p>
+      </div>
+      <div class="hero-actions">
+        <label class="switch">
+          自动刷新
+          <input id="auto-refresh-enabled" type="checkbox" checked />
+        </label>
+        <label class="switch">
+          间隔(秒)
+          <input id="auto-refresh-seconds" type="number" min="5" max="300" step="1" value="10" />
+        </label>
+        <button id="btn-sync" class="btn btn-primary">立即同步</button>
+        <button id="btn-refresh" class="btn">刷新数据</button>
+      </div>
+    </header>
+
+    <section class="grid status-grid" id="status-cards">
+      <article class="card metric">
+        <p class="label">服务在线</p>
+        <p id="m-online" class="value">-</p>
+      </article>
+      <article class="card metric">
+        <p class="label">同步任务中</p>
+        <p id="m-running" class="value">-</p>
+      </article>
+      <article class="card metric">
+        <p class="label">上次成功时间</p>
+        <p id="m-last-success" class="value small">-</p>
+      </article>
+      <article class="card metric">
+        <p class="label">最近心跳</p>
+        <p id="m-heartbeat" class="value small">-</p>
+      </article>
+      <article class="card metric">
+        <p class="label">上次同步耗时</p>
+        <p id="m-elapsed" class="value">-</p>
+      </article>
+      <article class="card metric">
+        <p class="label">最近错误</p>
+        <p id="m-last-error" class="value small">-</p>
+      </article>
+    </section>
+
+    <section class="grid detail-grid">
+      <article class="card">
+        <h2>运行细节</h2>
+        <div class="meta-grid" id="runtime-meta"></div>
+      </article>
+
+      <article class="card">
+        <h2>最近同步统计</h2>
+        <div class="stats" id="sync-stats"></div>
+      </article>
+
+      <article class="card full-width">
+        <div class="card-head">
+          <h2>日志</h2>
+          <div class="inline-controls">
+            <label>
+              条数
+              <input id="log-lines" type="number" min="1" max="2000" step="1" value="200" />
+            </label>
+            <label>
+              级别
+              <select id="log-level">
+                <option value="">全部</option>
+                <option value="error">error</option>
+                <option value="warn">warn</option>
+                <option value="info">info</option>
+                <option value="debug">debug</option>
+              </select>
+            </label>
+            <label>
+              范围
+              <select id="log-scope">
+                <option value="startup">启动后</option>
+                <option value="today">今天</option>
+                <option value="all">全部</option>
+              </select>
+            </label>
+            <button id="btn-load-logs" class="btn btn-small">读取日志</button>
+          </div>
+        </div>
+        <div id="log-kpis" class="log-kpis">
+          <span class="kpi">Total: -</span>
+          <span class="kpi kpi-error">Error: -</span>
+          <span class="kpi kpi-warn">Warn: -</span>
+          <span class="kpi kpi-info">Info: -</span>
+          <span class="kpi kpi-debug">Debug: -</span>
+        </div>
+        <div class="log-table-wrap">
+          <table class="log-table">
+            <thead>
+              <tr>
+                <th>时间</th>
+                <th>级别</th>
+                <th>组件</th>
+                <th>内容</th>
+                <th>ID</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="log-table-body">
+              <tr>
+                <td colspan="6" class="log-empty">加载中...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p id="log-summary-hint" class="log-summary-hint">默认展示简要日志，点击“详情”再按需拉取完整上下文。</p>
+      </article>
+
+      <article class="card full-width">
+        <div class="card-head">
+          <h2>当前配置（钉钉 + iCloud，已脱敏）</h2>
+          <button id="btn-edit-config" class="btn btn-small">编辑配置</button>
+        </div>
+        <div id="config-panels" class="config-panels">加载中...</div>
+      </article>
+    </section>
+  </main>
+
+  <dialog id="config-dialog" class="config-dialog">
+    <form id="config-form" class="config-form">
+      <div class="dialog-head">
+        <h3>编辑同步配置</h3>
+        <p>账号和密码留空表示保持不变。</p>
+        <button type="button" id="btn-load-calendars" class="btn btn-small">加载日历列表</button>
+      </div>
+
+      <section class="form-section">
+        <h4>钉钉（来源读取，可多选）</h4>
+        <div class="form-grid">
+          <label>Base URL<input id="dingtalk-base-url" name="dingtalk-base-url" type="text" required /></label>
+          <label>User Agent<input id="dingtalk-user-agent" name="dingtalk-user-agent" type="text" /></label>
+          <label class="span-2">来源日历（按住 Ctrl/Cmd 可多选）
+            <select id="dingtalk-source-calendars" name="dingtalk-source-calendars" multiple size="6"></select>
+          </label>
+          <label>超时(ms)<input id="dingtalk-timeout-ms" name="dingtalk-timeout-ms" type="number" min="1000" step="1000" required /></label>
+          <label>新账号<input id="dingtalk-username" name="dingtalk-username" type="text" placeholder="留空不改" /></label>
+          <label>新密码<input id="dingtalk-password" name="dingtalk-password" type="password" placeholder="留空不改" /></label>
+        </div>
+        <p class="current-secret">
+          当前账号: <span id="dingtalk-current-username">-</span> |
+          当前密码: <span id="dingtalk-current-password">-</span>
+        </p>
+      </section>
+
+      <section class="form-section">
+        <h4>iCloud（目标写入，单选）</h4>
+        <div class="form-grid">
+          <label>Base URL<input id="icloud-base-url" name="icloud-base-url" type="text" required /></label>
+          <label>User Agent<input id="icloud-user-agent" name="icloud-user-agent" type="text" /></label>
+          <label class="span-2">目标日历（单选）
+            <select id="icloud-target-calendar" name="icloud-target-calendar" size="6"></select>
+          </label>
+          <label>超时(ms)<input id="icloud-timeout-ms" name="icloud-timeout-ms" type="number" min="1000" step="1000" required /></label>
+          <label>新 Apple ID<input id="icloud-apple-id" name="icloud-apple-id" type="text" placeholder="留空不改" /></label>
+          <label>新 App 专用密码<input id="icloud-app-password" name="icloud-app-password" type="password" placeholder="留空不改" /></label>
+        </div>
+        <p class="current-secret">
+          当前 Apple ID: <span id="icloud-current-username">-</span> |
+          当前密码: <span id="icloud-current-password">-</span>
+        </p>
+      </section>
+
+      <p id="calendar-load-hint" class="config-save-hint">点击“加载日历列表”后选择来源与目标日历。</p>
+      <p id="config-save-hint" class="config-save-hint">保存后立即写入 .env。</p>
+
+      <div class="dialog-actions">
+        <button type="button" id="btn-config-cancel" class="btn">取消</button>
+        <button type="submit" id="btn-config-save" class="btn btn-primary">保存配置</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="log-detail-dialog" class="log-detail-dialog">
+    <div class="log-detail-inner">
+      <div class="card-head">
+        <h3>日志详情</h3>
+        <button id="btn-log-detail-close" class="btn btn-small">关闭</button>
+      </div>
+      <p id="log-detail-meta" class="log-detail-meta">-</p>
+      <pre id="log-detail-context" class="log-detail-context">加载中...</pre>
+    </div>
+  </dialog>
+
+  <script src="/assets/app.js"></script>
+</body>
+</html>

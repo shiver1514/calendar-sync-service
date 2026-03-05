@@ -1,0 +1,20 @@
+{
+  "name": "calendar-sync",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sync DingTalk calendar to iCloud calendar via CalDAV",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "start:prod": "SYNC_DRY_RUN=false SYNC_ENABLE_DELETE=true SYNC_DELETE_CONFIRM_RUNS=2 SYNC_DELETE_MAX_RATIO=0.9 node src/server.js",
+    "cli": "node src/cli.js",
+    "sync:once": "node src/cli-sync-once.js",
+    "sync:once:prod": "SYNC_DRY_RUN=false SYNC_ENABLE_DELETE=true SYNC_DELETE_CONFIRM_RUNS=2 SYNC_DELETE_MAX_RATIO=0.9 node src/cli-sync-once.js",
+    "test": "node --test",
+    "test:dingtalk:read": "node test/integration/dingtalk-read.js",
+    "test:icloud:rw": "node test/integration/icloud-read-write.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
